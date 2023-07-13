@@ -1,0 +1,6 @@
+processinfo.py es el programa que va a listar los procesos.
+
+La solución del ejercicio es buscar_proceso.py
+
+Ambos archivos deben estar en el mismo directorio para que funcione la solución.
+Y recordá ejutar desde la consola a buscar_proceso, ya que requiere argumentos de programa. 

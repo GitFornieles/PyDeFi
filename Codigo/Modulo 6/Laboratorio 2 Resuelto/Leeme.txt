@@ -1,0 +1,3 @@
+Las instrucciones de como hacer la aplicacion ejecutable de un solo archivo y sin consola estan en el apunte 
+de clase titulado:
+"Aplicaciones ejecutables"

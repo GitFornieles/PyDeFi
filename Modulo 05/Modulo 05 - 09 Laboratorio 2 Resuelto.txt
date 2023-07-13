@@ -1,0 +1,41 @@
+import requests
+import os
+
+
+if os.name == "nt":
+    borrar = "cls"
+else:
+    borrar = "clear"
+
+
+os.system(borrar)
+
+
+while True:
+    print("""
+    1 - Ingresar datos
+    2 - Salir del programa
+    """)
+    opcion = input(">>> ")
+    if opcion == "1":
+        datos = {
+            "name": input("Ingrese nombre: "),
+            "email": input("Ingrese email: "),
+            "message": input("Ingrese mensaje: ")
+        }
+        r = requests.post("http://localhost:8880/form", data=datos)
+        if r.status_code == 200:
+            contenido = r.content.decode("utf-8")
+            if "enviado" in contenido:
+                print("¡Datos enviados correctamente!")
+            else:
+                print("Debes ingresar todos los campos.")
+        else:
+            print("Ocurrió un error.")
+    elif opcion == "2":
+        print("Gracias por usar nuestro programa")
+        break
+    else:
+        print("Error de opción")
+    input("Toque ENTER para continuar...")
+    os.system(borrar)

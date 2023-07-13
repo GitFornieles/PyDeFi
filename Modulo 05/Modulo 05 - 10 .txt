@@ -1,0 +1,65 @@
+import requests
+import sys
+import os
+
+
+def consultar():
+    try:
+        r = requests.get("https://wttr.in/buenos%20aires?format=j1") 
+    except Exception:
+        print("Hay algún problema. No se puede conectar al servicio")
+        print("Se finaliza el programa. Intente más tarde.")
+        sys.exit()
+    return r.json()
+
+
+def informar():
+    datos = consultar()
+    #print(datos)
+    t = datos["current_condition"][0]["temp_C"]
+    h = datos["current_condition"][0]["humidity"]
+    p = datos["current_condition"][0]["pressure"]
+    v = datos["current_condition"][0]["visibility"]
+    vel = datos["current_condition"][0]["windspeedKmph"]
+    dir = datos["current_condition"][0]["winddir16Point"]
+    valores = {"temperatura":t,"humedad":h,"presion":p,"visibilidad":v,"velocidad":vel,"direccion":dir}
+    #print(valores)
+    return valores
+
+
+######################################################################
+
+if os.name == "nt":
+    borrar = "cls"
+else:
+    borrar = "clear"
+
+os.system(borrar)
+
+while True:
+    print("""
+    Menú
+    1.	Variables climáticas
+    2.	Visibilidad
+    3.	Velocidad y dirección del viento
+    4.	Salir 
+    """)
+    opcion = input(">>> ")
+    if opcion == "1":
+        info = informar()
+        print("La temperatura es " + info["temperatura"] +"°C")
+        print("La humedad es " + info["humedad"] +"%")
+        print("La presión es " + info["presion"] +"Hpa")
+    elif opcion == "2":
+        info= informar()
+        print("La visibilidad actual es "+ info["visibilidad"] +" km")
+    elif opcion == "3":
+        info = informar()
+        print(f"La velocidad del viento es {info['velocidad']} km/h y la direccion es {info['direccion']}")
+    elif opcion == "4":
+        print("¡Gracias por usar nuestro programa!")
+        break
+    else:
+        print("¡Esa opcion no es correcta!")
+    input("Toque ENTER para continuar...")
+    os.system(borrar)

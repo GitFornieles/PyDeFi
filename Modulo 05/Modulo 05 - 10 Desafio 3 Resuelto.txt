@@ -1,0 +1,125 @@
+import requests
+import sqlite3
+import sys
+import os
+
+
+def consultar():
+    try:
+        r = requests.get("https://wttr.in/buenos%20aires?format=j1") 
+    except Exception:
+        print("Hay algún problema. No se puede conectar al servicio")
+        print("Se finaliza el programa. Intente más tarde.")
+        sys.exit()
+    return r.json()
+
+
+def informar():
+    datos = consultar()
+    #print(datos)
+    t = datos["current_condition"][0]["temp_C"]
+    h = datos["current_condition"][0]["humidity"]
+    p = datos["current_condition"][0]["pressure"]
+    vis = datos["current_condition"][0]["visibility"]
+    vel = datos["current_condition"][0]["windspeedKmph"]
+    dir = datos["current_condition"][0]["winddir16Point"]
+    fec = datos["current_condition"][0]["localObsDateTime"]
+    valores = {"temperatura":t,"humedad":h,"presion":p,"visibilidad":vis,"velocidad":vel,"direccion":dir,"fecha":fec}
+    #print(valores)
+    return valores
+
+
+
+""""""
+def guardar():
+    info = informar()
+    try:
+        conn = sqlite3.connect("clima.sqlite")
+        cursor = conn.cursor()
+        cursor.execute("INSERT INTO datos VALUES (null,?,?,?,?,?,?,?)",
+            (
+                info["fecha"],
+                info["temperatura"],
+                info["humedad"],
+                info["presion"],
+                info["visibilidad"],
+                info["velocidad"],
+                info["direccion"]
+            )
+        )
+        conn.commit()
+        conn.close
+    except sqlite3.OperationalError:
+        conn = sqlite3.connect("clima.sqlite")
+        cursor = conn.cursor()
+        # Cuando tomamos los datos de este servicio en particular, todos son del tipo string
+        # No implica que siempre sea asi
+        # Pero si no lo convertimos podemos dejarlo asi usando el tipo de dato correcto para los campos
+        # de la base de datos 
+        cursor.execute("""CREATE TABLE datos
+        ( 
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            fecha TEXT,
+            temperatura TEXT,
+            humedad TEXT,
+            presion TEXT,
+            visibilidad TEXT,
+            viento_vel TEXT,
+            viento_dir TEXT
+        )
+        """)
+        cursor.execute("INSERT INTO datos VALUES (null,?,?,?,?,?,?,?)",
+            (
+                info["fecha"],
+                info["temperatura"],
+                info["humedad"],
+                info["presion"],
+                info["visibilidad"],
+                info["velocidad"],
+                info["direccion"]
+            )
+        )
+        conn.commit()
+        conn.close
+    print("¡Se salvo el nuevo evento del clima!")
+
+
+######################################################################
+
+if os.name == "nt":
+    borrar = "cls"
+else:
+    borrar = "clear"
+
+os.system(borrar)
+
+while True:
+    print("""
+    Menú
+    1.	Variables climáticas
+    2.	Visibilidad
+    3.	Velocidad y dirección del viento
+    4.  Guardar clima
+    5.	Salir 
+    """)
+    opcion = input(">>> ")
+    if opcion == "1":
+        info = informar()
+        print("La temperatura es " + info["temperatura"] +"°C")
+        print("La humedad es " + info["humedad"] +"%")
+        print("La presión es " + info["presion"] +"Hpa")
+    elif opcion == "2":
+        info= informar()
+        print("La visibilidad actual es "+ info["visibilidad"] +" km")
+    elif opcion == "3":
+        info = informar()
+        print(f"La velocidad del viento es {info['velocidad']} km/h y la direccion es {info['direccion']}")
+    elif opcion == "4":
+        guardar()
+    elif opcion == "5":
+        print("¡Gracias por usar nuestro programa!")
+        break
+    else:
+        print("¡Esa opcion no es correcta!")
+    input("Toque ENTER para continuar...")
+    os.system(borrar)
